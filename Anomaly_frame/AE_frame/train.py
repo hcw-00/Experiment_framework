@@ -1,7 +1,7 @@
 import argparse
 import os
 import tensorflow as tf
-from model import vae
+from models.simple_AE import autoencoder as autoencoder
 import os
 
 tf.set_random_seed(20)
@@ -25,6 +25,7 @@ n_epochs = 100
 batch_size = 1
 learning_rate = 0.0001
 beta1 = 0.5
+z_dim = 128
 
 
 ######################################################################
@@ -34,8 +35,8 @@ beta1 = 0.5
 x = tf.placeholder(tf.float32, [None, 256, 256, 1], name='input')
 
 # AE
-z = encoder(x)
-x_r = decoder(z)
+z = autoencoder.encoder(x, z_dim)
+x_r = autoencoder.decoder(z)
 
 ## VAE
 #z = encoder(x)
@@ -54,7 +55,7 @@ loss = l2_loss(x, x_r)
 all_vars = tf.trainable_variables()
 enc_vars = [var for var in all_vars if 'enc' in var.name]
 enc_vars = [var for var in all_vars if 'dec' in var.name]
-optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate, beta1=bete1).minimize(loss, var_list=all_vars)
+optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate, beta1=beta1).minimize(loss, var_list=all_vars)
 
 # Tensorboard visualization
 tf.summary.scalar(name='Autoencoder Loss', tensor=autoencoder_loss)
